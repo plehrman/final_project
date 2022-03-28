@@ -1,6 +1,9 @@
 # final_project
 
-This is Peter Lehrman's final project for STA 199
+This is Peter Lehrman's final project for STA 199. I am investigating the correlation between NBA ELO score and playoff performance (playoff wins).
+
+The following data dictionary is copied from the fivethirtyeight data set.
+___________________________________________________________________________________________________________________________________________________________
 # Historical NBA Elo
 
 This directory contains the data behind the [Complete History Of The NBA](http://fivethirtyeight.com/interactives/the-complete-history-of-every-nba-team-by-elo) interactive. Data updated periodically. Game information is from [Basketball-Reference.com](http://www.basketball-reference.com/).
