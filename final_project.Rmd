@@ -16,11 +16,20 @@ knitr::opts_chunk$set(warning = FALSE)
 
 
 ```{r}
-library(tidytuesday)
+library(tidyverse)
+library(fivethirtyeight)
 ```
+ approve your first choice -- NBA ELO data.
 
+Good start at a research question. Moving forward, you'll want to think about how you will quantify playoff performance. E.g. total points scored? Difference between opponent and home points? Total number of wins? etc.
 
-```{r}
-game_goals <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-03-03/game_goals.csv')
+You might think of other creative extensions to incorporate some of additional variables like game_result
+
+e.g.
+
+- how does ELO score correlate with probability of an away win? probability of a home win? Does ELO ranking align sort franchises according to some other metric, e.g. total # of wins in a season, etc?
+This could be useful for identifying confounding.
+
+```{r load-data, message = FALSE}
+nba_data <- read_csv("data/nbaallelo.csv")
 ```
-
