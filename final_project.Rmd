@@ -50,15 +50,12 @@ Our research question we hope to address in this investigation is there a positi
 
 # Methodology
 
-
-# Results
-
 Final Figure: Is there a positive correlation between ELO rating and playoff performance (difference in team score and opponent score)?
 
 ```{r, echo = FALSE}
 nba_data %>% 
   filter(is_playoffs == 1) %>% 
-  ggplot(aes(x = elo_i, y = pts - opp_pts, color = game_location)) + 
+  ggplot(aes(x = elo_i, y = diff, color = game_location)) + 
   geom_point() + 
   labs(
     title = "ELO Rating and Playoff Performance",
@@ -74,13 +71,18 @@ Calculating the correlation coefficient.
 ```{r}
 away_coefficient <- nba_data %>% 
   filter(game_location == "Away") %>% 
-  cor(elo_i, diff)
+  summarize(cor(elo_i, diff))
+
+away_coefficient
 
 home_coefficient <- nba_data %>% 
   filter(game_location == "Home") %>% 
-  cor(elo_i, diff)
+  summarize(cor(elo_i, diff))
+
+home_coefficient
 ```
 
+# Results
 
 
 
