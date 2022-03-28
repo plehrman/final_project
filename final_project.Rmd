@@ -1,6 +1,6 @@
 ---
 title: "Final Project"
-author: 'Peter Lehrmn'
+author: 'Peter Lehrman'
 subtitle: 'due Monday March 28 11:59 PM'
 output:
   html_document:
