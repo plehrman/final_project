@@ -1,0 +1,26 @@
+---
+title: "Final Project"
+author: 'Peter Lehrman'
+subtitle: 'due Monday March 28 11:59 PM'
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+editor_options:
+  chunk_output_type: console
+---
+
+```{r include = FALSE}
+knitr::opts_chunk$set(warning = FALSE)
+```
+
+
+```{r}
+library(tidytuesday)
+```
+
+
+```{r}
+game_goals <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-03-03/game_goals.csv')
+```
+
