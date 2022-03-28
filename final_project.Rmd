@@ -51,7 +51,20 @@ Our research question we hope to address in this investigation is there a positi
 
 # Results
 
-Final Figure: Is there a positive correlation between ELO rating and playoff wins (performance)?
+Final Figure: Is there a positive correlation between ELO rating and playoff performance (difference in?
+
+```{r}
+nba_data %>% 
+  filter(is_playoffs == 1) %>% 
+  ggplot(aes(x = elo_i, y = pts - opp_pts, color = game_location)) + 
+  geom_point() + 
+  labs(
+    title = "ELO Rating and Playoff Performance",
+    x = "ELO Rating",
+    y = "Performance") + 
+  facet_grid(~game_location)
+```
+
 
 
 
