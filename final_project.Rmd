@@ -90,7 +90,13 @@ Is there a correlation between ELO rating and playoff performance when performan
 nba_data %>% 
   filter(is_playoffs == 1) %>%
   ggplot(aes(x = elo_i, fill = game_result, color = "black")) +
-    geom_histogram(bins = 10, position = "fill")
+    geom_histogram(bins = 10, position = "fill") + 
+    labs(
+      title = "ELO Rating and Playoff Performance",
+      x = "ELO Rating",
+      y = "Playoff Performance (Results of the Games)",
+      fill = "Game Result?") + 
+    theme_bw()
 ```
 
 Is there a correlation between a difference in ELO rating and playoff performance when performance is dictated as playoff wins?
@@ -99,8 +105,7 @@ Is there a correlation between a difference in ELO rating and playoff performanc
 nba_data %>% 
   filter(is_playoffs == 1) %>%
   ggplot(aes(x = elo_diff, fill = game_result)) +
-    geom_histogram(bins = 10, position = "fill") + 
-    theme_bw()
+    geom_histogram(bins = 10, position = "fill") + theme_bw()
 ```
 
 
@@ -115,7 +120,7 @@ away_coefficients <- nba_data %>%
             "ELO vs. Game Result" = cor(elo_i, game_result), 
             "ELO Diff vs. Game Result" = cor(elo_diff, game_result))
 
-print(grid.table(away_coefficients))
+grid.table(away_coefficients)
 ```
 
 Calculating the correlation coefficients for home games: 
@@ -142,10 +147,6 @@ linear_reg() %>%
   fit(pts_diff ~ elo_i + opp_elo_i + game_location, data = nba_data)
 ```
 
-
-```{r}
-
-```
 
 
 
