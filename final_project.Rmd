@@ -17,6 +17,7 @@ knitr::opts_chunk$set(warning = FALSE)
 
 ```{r, include = FALSE}
 library(tidyverse)
+library(tidymodels)
 library(gridExtra)
 library(grid)
 ```
@@ -24,13 +25,13 @@ library(grid)
 ```{r load-data, message = FALSE, include = FALSE}
 nba_data <- read_csv("data/nbaallelo.csv") %>% 
   mutate(game_location = ifelse(game_location == "H", "Home", "Away")) %>% 
-  mutate(diff = pts - opp_pts)
+  mutate(pts_diff = pts - opp_pts) %>% 
+  mutate(elo_diff = elo_i - opp_elo_i)
 ```
 
 # Introduction 
 
 Our group stumbled upon this data set in the fivethirtyeight library and were immediately intrigued by the set's breadth of variables and observations. The data set comes from [basketball-reference.com](https://www.basketball-reference.com/) and is updated periodically. The data set included a variable known as ELO, which referred to relative strength of an NBA team based on game-by-game results. It is important to note that ELO ratings are zero sum; this mean that when the "Houston Rockets gained 49 ELO points by winning the final three games of their Western Conference semifinal during the 2014-15 playoffs, that meant the Los Angeles Clippers lost 49 Elo points." (Fivethirtyeight). Furthermore, teams always gain Elo points when they win games and lose points when they lose games. More points are gained for upset wins and for winning by wider margins. Here's a link if you want a more in depth analysis of how ELO ratings [work](https://fivethirtyeight.com/features/how-we-calculate-nba-elo-ratings/#:~:text=Here's%20the%20formula%3A%20Take%20the,of%20victory%20for%20the%20game.)
-
 
 Here's a look at how ELO ratings compares to team records (fivethirtyeight). 
 
@@ -46,47 +47,105 @@ print(grid.table(df))
 
 Other relevant variables include "is_playoffs" which takes a binary input (0 or 1). Team id is "team_id." The points scored by the home team is "pts" and the points scored by the away team are "opp_pts." More information can be gained by looking at our README file on [GitHub](https://github.com/plehrman/final_project/blob/main/README.md). 
 
-Our research question we hope to address in this investigation is there a positive correlation between ELO rating and playoff performance? When we say playoff performance, we are referring to wins in playoff games. Along the way, we will also be looking at how ELO score correlates to the probability of an away win or the probability of a home win. Our hypothesis is that we expect there to be a positive correlation between ELO score and playoff wins. We would also expect that home court advantage would be evident in our data analysis. 
+Our research question we hope to address in this investigation is there a connection between ELO rating and playoff performance? When we say playoff performance, we are referring to wins in playoff games. We do not care if the team wins by 1 point or by 20 in playoff games. A win is a win. Along the way, we will also be looking at how ELO score correlates to the difference in points between teams. Do higher ELO values mean that teams win by more points? Our hypothesis is that we expect there to be a positive correlation between ELO score and playoff wins. We would also expect that the concept of home court advantage will be evident in our data analysis. 
 
 # Methodology
 
-Final Figure: Is there a positive correlation between ELO rating and playoff performance (difference in team score and opponent score)?
+Is there a correlation between ELO rating and playoff performance when performance is dictated as the difference between points of opposing teams?
 
 ```{r, echo = FALSE}
 nba_data %>% 
   filter(is_playoffs == 1) %>% 
-  ggplot(aes(x = elo_i, y = diff, color = game_location)) + 
+  ggplot(aes(x = elo_i, y = pts_diff, color = game_location)) + 
   geom_point() + 
   labs(
     title = "ELO Rating and Playoff Performance",
     x = "ELO Rating",
-    y = "Performance",
+    y = "Performance (Difference in Points of Teams)",
     color = "Game Location?") + 
   facet_grid(~game_location) + 
   geom_smooth(se = FALSE, method = lm, color = "black")
 ```
 
-Calculating the correlation coefficient.
+Is there a correlation between the difference in ELO ratings between teams and playoff performance when performance is dictated as the difference between points of opposing teams? 
+
+```{r, echo = FALSE}
+nba_data %>% 
+  filter(is_playoffs == 1) %>% 
+  ggplot(aes(x = elo_diff, y = pts_diff, color = game_location)) + 
+  geom_point() + 
+  labs(
+    title = "Difference in ELO Rating and Playoff Performance",
+    x = "Difference in ELO Rating",
+    y = "Playoff Performance (Difference in Points of Teams)",
+    color = "Game Location?") + 
+  facet_grid(~game_location) + 
+  geom_smooth(se = FALSE, method = lm, color = "black")
+```
+
+Is there a correlation between ELO rating and playoff performance when performance is dictated as playoff wins?
+
+
+```{r, echo = FALSE}
+nba_data %>% 
+  filter(is_playoffs == 1) %>%
+  ggplot(aes(x = elo_i, fill = game_result, color = "black")) +
+    geom_histogram(bins = 10, position = "fill")
+```
+
+Is there a correlation between a difference in ELO rating and playoff performance when performance is dictated as playoff wins?
 
 ```{r}
-away_coefficient <- nba_data %>% 
-  filter(game_location == "Away") %>% 
-  summarize(cor(elo_i, diff))
-
-away_coefficient
-
-home_coefficient <- nba_data %>% 
-  filter(game_location == "Home") %>% 
-  summarize(cor(elo_i, diff))
-
-home_coefficient
+nba_data %>% 
+  filter(is_playoffs == 1) %>%
+  ggplot(aes(x = elo_diff, fill = game_result)) +
+    geom_histogram(bins = 10, position = "fill") + 
+    theme_bw()
 ```
+
+
+Calculating the correlation coefficients for away games:
+
+```{r, echo = FALSE}
+away_coefficients <- nba_data %>% 
+  filter(game_location == "Away", is_playoffs == 1) %>%
+  mutate(game_result = ifelse(game_result == "W", 1, 0)) %>% 
+  summarize("ELO vs. Point Diff" = cor(elo_i, pts_diff), 
+            "ELO Diff vs. Point Diff" = cor(elo_diff, pts_diff), 
+            "ELO vs. Game Result" = cor(elo_i, game_result), 
+            "ELO Diff vs. Game Result" = cor(elo_diff, game_result))
+
+print(grid.table(away_coefficients))
+```
+
+Calculating the correlation coefficients for home games: 
+
+```{r, echo = FALSE}
+home_coefficients <- nba_data %>% 
+  filter(game_location == "Home", is_playoffs == 1) %>% 
+  mutate(game_result = ifelse(game_result == "W", 1, 0)) %>% 
+  summarize("ELO vs. Point Diff" = cor(elo_i, pts_diff), 
+            "ELO Diff vs. Point Diff" = cor(elo_diff, pts_diff), 
+            "ELO vs. Game Result" = cor(elo_i, game_result), 
+            "ELO Diff vs. Game Result" = cor(elo_diff, game_result))
+print(grid.table(home_coefficients))
+
+```
+
+
 
 # Results
 
+```{r}
+linear_reg() %>%
+  set_engine("lm") %>%
+  fit(pts_diff ~ elo_i + opp_elo_i + game_location, data = nba_data)
+```
 
 
+```{r}
 
+```
 
 
 
